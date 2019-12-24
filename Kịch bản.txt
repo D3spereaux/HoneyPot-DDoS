@@ -1,27 +1,39 @@
 Kịch bản tấn công sẽ bao gồm 3 phần:
-1.	Giả dạng dịch vụ & Phát hiện xâm nhập
+------------------------------------
+1.	Giả dạng dịch vụ & Phát hiện xâm nhập:
+
 - Ở demo đầu, sử dụng tool Pentbox dựa trên ngôn ngữ lập trình Ruby (https://github.com/H4CK3RT3CH/pentbox-1.8) để khởi tạo HoneyPot trên Kali Linux (Mở các port lần lượt: 22,23,80 và 445) nhằm tạo các dịch vụ ảo thu hút kẻ tấn công.
 - Tiếp đến, kẻ tấn công sẽ tiến hành xâm nhập lần lượt các port kể trên và kết quả thu được sẽ được hiện trên HoneyPot.
+
+------------
+
 2.	Port Scanning
+
 - Ở demo thứ 2, dựa trên bảng IPTables đã được cấu hình trên Router (limit 25/min và burst 100) nhằm giới hạn gói tin gửi đến trong 1 phút.
 - Tiếp theo, kẻ tấn công sẽ tiến hành quét các Port mở trên máy Victim (192.168.70.102) với câu lệnh Nmap cơ bản.
 - Thực tế khi sử dụng câu lệnh quét port phức tạp hơn trên Victim thì ta có thể thấy dựa trên Wireshark, các gói tin sẽ được redirect sang HoneyPot (192.168.70.200) theo rules của IpTables và Nmap sẽ phản hồi lại thông tin port cho kẻ tấn công dựa trên các Port đã mở trên máy HoneyPot.
+
+------------
+
 3.	Tấn công DDoS
+
 - Ở demo cuối cùng, ta sẽ sử dụng IPTables (là một ứng dụng tường lửa dựa trên lọc gói rất mạnh, miễn phí và có sẵn trên Linux.) trên Router để điều hướng gói tin giữa các NIC.
+
 A. Attacker:
 - Tiến hành tấn công DDoS vào máy Victim (192.168.70.102) theo phương thức SYN Flood với script dựa trên Python nhằm gửi số lượng lớn traffic đến Victim qua các port lần lượt: 22,23,80,445.
  
 Chú thích: 
+
 + Script sẽ lấy destination IP làm Input và tiến hành khởi tạo nhiều kết nối từ các port khác nhau. 
 + Đồng thời sử dụng giá trị ngẫu nhiên tại TTL (Time to live) và ID nhằm xáo trộn danh tính để qua mặt IDS/IPS. (Mỗi OS sẽ có 1 giá trị TTL, và từ đó Firewall hoặc IDS/IPS như Snort sẽ phát hiện được hệ điều hành của máy Attacker.
 + Hàm “srloop” gửi “p” gói được khởi tạo trong khoảng thời gian 0,3 giây. Các kết quả của srloop được thu thập trong ans (đối với các gói được trả lời) và unans (đối với các gói chưa được trả lời).
+
 B. Router:
+
 -  Thao tác thiết lập IPTables với 2 rules với target lần lượt là: ACCEPT và DNAT:
 + Rule đầu tiên sẽ thiết lập (PREROUTING ACCEPT) là chấp nhận toàn bộ gói tin đi vào Network. Tiếp đến sẽ đến mục giới hạn (limit) thì ở đây sẽ nhận tối đa là 100 packets. Nếu chạm ngưỡng này thì số packets sẽ bị giới hạn xuống còn 25 packets/ phút. Số packet còn lại sẽ bị đẩy xuống Rule 2.
 + Ở Rule thứ 2 sẽ thiết lập DNAT nhằm thay đổi IP đích mà gói tin sẽ gửi đến sang IP của HoneyPot.
- 
-
-- Ngoài ra, Router sẽ sử dụng đoạn script Python ngắn để theo dõi, phát hiện và chuyển toàn bộ gói tin đến HoneyPot:
+ - Ngoài ra, Router sẽ sử dụng đoạn script Python ngắn để theo dõi, phát hiện và chuyển toàn bộ gói tin đến HoneyPot:
 + Ở đây sẽ tiến hành khai báo biến là IP của HoneyPot và Victim.
 + Tiếp đến câu điều kiện sẽ thể hiện IP nguồn gửi gói tin đến Victim/HoneyPot.
 => Mục đích của Script là sẽ đếm gói tin qua lại (Flip-Flop) giữa gói tin được gửi đến cho Victim/HoneyPot dựa trên IPTables, đồng thời nếu flip-flop đạt ngưỡng 10 lần thì từ đó có thể xác định rằng có người đang tấn công (DoS, DDoS) vào Victim của chúng ta và sẽ tự động chạy câu lệnh tiếp theo nhằm chuyển hướng tất cả các gói tin đến cho HoneyPot.
