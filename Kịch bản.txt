@@ -1,5 +1,6 @@
 Kịch bản tấn công sẽ bao gồm 3 phần:
 ------------------------------------
+
 1.	Giả dạng dịch vụ & Phát hiện xâm nhập:
 
 - Ở demo đầu, sử dụng tool Pentbox dựa trên ngôn ngữ lập trình Ruby (https://github.com/H4CK3RT3CH/pentbox-1.8) để khởi tạo HoneyPot trên Kali Linux (Mở các port lần lượt: 22,23,80 và 445) nhằm tạo các dịch vụ ảo thu hút kẻ tấn công.
