@@ -32,9 +32,9 @@ Download SniffnReroute.py:
 
 3. HoneyPot:
 
-Download Pentbox-1.8 from H4CK3RT3CH:
+Download Pentbox-1.8 from H4CK3RT3CH or unzip:
 
-+ git clone https://github.com/H4CK3RT3CH/pentbox-1.8.git
++ git clone https://github.com/H4CK3RT3CH/pentbox-1.8.git or unzip pentbox-1.8.zip
 
 + Run command: ./pentbox.rb (Choose Network Tools > HoneyPot)
 
